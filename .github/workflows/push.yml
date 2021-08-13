@@ -15,3 +15,15 @@ jobs:
         tag_with_ref: true
         tag_with_sha: true
         tags: ${{ github.sha }}
+    - uses: actions/checkout@master
+    - name: deploy to cluster
+      uses: steebchen/kubectl@v2.0.0
+      with: # defaults to latest kubectl binary version
+        config: ${{ secrets.KUBE_CONFIG_DATA }}
+        command: set image --record deployment/prueba3-cicd-app container=${{ secrets.DOCKER_REPO }}:${{ github.sha }}
+    - name: verify deployment
+      uses: steebchen/kubectl@v2.0.0
+      with:
+        config: ${{ secrets.KUBE_CONFIG_DATA }}
+        version: v1.21.0 # specify kubectl binary version explicitly
+        command: rollout status deployment/prueba3-cicd-app
